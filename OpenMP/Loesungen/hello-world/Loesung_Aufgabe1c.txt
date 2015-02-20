@@ -1,0 +1,1 @@
+Bei einer wiederholten Ausführung des Programms fällt auf, das die Reihenfolge der Ausgaben unterschiedlich ist. Dies liegt daran, das die Threads unterschiedlich schnell bearbeitet werden. 

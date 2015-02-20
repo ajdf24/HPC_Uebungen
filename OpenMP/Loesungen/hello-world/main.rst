@@ -29,3 +29,8 @@ b)
     }
     return 0;
   }
+
+c)
+--
+
+Die Ausgabe ist nicht konstant, weil die Threads bei jeder Ausgabe unterschiedlich schnell sind.

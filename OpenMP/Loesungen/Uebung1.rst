@@ -70,3 +70,21 @@ d)
     }
     return 0;
   }
+
+Aufgabe 2
+=========
+
+a)
+--
+
+Der Fehler in error1 tritt nur auf, wenn mehr als 2 Threads verwendet werden.
+
+Von l.36 bis l.55 wird das Programm in zwei Sections aufgeteilt welche von 2 Threads abgearbeitet werden. Wegen dem "nowait" Befehl laufen alle anderen Threads gegen die Barrier in l.58 und warten auf die Threads, welche den Sectionblock abarbeiten.
+
+Diese Threads laufen aber gegen die Barrier in l.86 und warten dort auf die anderen Threads, welche diesen Codeteil nicht ausführen.
+
+Für die Behebung gibt es also 2 Möglichkeiten.
+
+  1. OMP_NUM_THREADS=2
+
+  2. l.86 löschen

@@ -181,3 +181,171 @@ a)
 
 b)
 --
+
+::
+
+  #include <stdio.h>
+  #include <stdlib.h>
+  #include <unistd.h>
+  #include <omp.h>
+
+  #define TRYS 5000000
+
+  static int throw() {
+    double x, y;
+    x = (double)rand() / (double)RAND_MAX;
+    y = (double)rand() / (double)RAND_MAX;
+    if ((x*x + y*y) <= 1.0) return 1;
+
+    return 0;
+  }
+
+  int main(int argc, char **argv) {
+    int globalCount = 0, globalSamples=TRYS, i;
+
+    #pragma omp parallel for private(i) shared(globalCount)
+    for(i = 0; i < globalSamples; ++i) {
+      int add = throw();
+      if (add != 0){
+        #pragma omp atomic
+    		globalCount += add;
+      }
+    }
+
+    double pi = 4.0 * (double)globalCount / (double)(globalSamples);
+
+    printf("pi is %.9lf\n", pi);
+
+    return 0;
+  }
+
+c)
+--
+
+::
+
+  #include <stdio.h>
+  #include <stdlib.h>
+  #include <unistd.h>
+  #include <omp.h>
+
+  #define TRYS 5000000
+
+  static int throw() {
+    double x, y;
+    x = (double)rand() / (double)RAND_MAX;
+    y = (double)rand() / (double)RAND_MAX;
+    if ((x*x + y*y) <= 1.0) return 1;
+
+    return 0;
+  }
+
+  int main(int argc, char **argv) {
+    int globalCount = 0, globalSamples=TRYS, i;
+
+    #pragma omp parallel for reduction(+:globalCount)
+    for(i = 0; i < globalSamples; ++i) {
+      int add = throw();
+      if (add != 0){
+    		globalCount += add;
+      }
+    }
+
+    double pi = 4.0 * (double)globalCount / (double)(globalSamples);
+
+    printf("pi is %.9lf\n", pi);
+
+    return 0;
+  }
+
+d)
+--
+
+::
+
+  #include <stdio.h>
+  #include <stdlib.h>
+  #include <unistd.h>
+  #include <omp.h>
+
+  #define TRYS 5000000
+
+  static int throw() {
+    double x, y;
+    x = (double)rand() / (double)RAND_MAX;
+    y = (double)rand() / (double)RAND_MAX;
+    if ((x*x + y*y) <= 1.0) return 1;
+
+    return 0;
+  }
+
+  int main(int argc, char **argv) {
+    int globalCount = 0, globalSamples=TRYS, i;
+
+    #pragma omp parallel reduction(+:globalCount)
+    {
+      #pragma omp for
+        for(i = 0; i < globalSamples; ++i) {
+          int add = throw();
+          if (add != 0){
+            globalCount += add;
+          }
+        }
+
+      printf("thread %d: i = %d\n", omp_get_thread_num(), globalCount);
+    }
+
+
+    double pi = 4.0 * (double)globalCount / (double)(globalSamples);
+
+    printf("pi is %.9lf\n", pi);
+
+    return 0;
+  }
+
+e)
+--
+
+::
+
+  #include <stdio.h>
+  #include <stdlib.h>
+  #include <unistd.h>
+  #include <omp.h>
+
+  #define TRYS 5000000
+
+  static int throw() {
+    double x, y;
+    x = (double)rand() / (double)RAND_MAX;
+    y = (double)rand() / (double)RAND_MAX;
+    if ((x*x + y*y) <= 1.0) return 1;
+
+    return 0;
+  }
+
+  int main(int argc, char **argv) {
+    int globalCount = 0, globalSamples=TRYS, i;
+
+    #pragma omp parallel reduction(+:globalCount) num_threads(6)
+    {
+      #pragma omp for
+        for(i = 0; i < globalSamples; ++i) {
+          int add = throw();
+          if (add != 0){
+            globalCount += add;
+          }
+        }
+
+      printf("thread %d: i = %d\n", omp_get_thread_num(), globalCount);
+    }
+
+
+    double pi = 4.0 * (double)globalCount / (double)(globalSamples);
+
+    printf("pi is %.9lf\n", pi);
+
+    return 0;
+  }
+
+Durch das ``num_threads(6)`` wird unterbunden, dass der Benutzer die Threadanzahl verändern kann. Er könnte dies ohne diese Angabe durch setzen von  ``OMP_NUM_THREADS`` tun.

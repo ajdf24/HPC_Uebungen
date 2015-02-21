@@ -15,11 +15,21 @@ static int throw() {
 }
 
 int main(int argc, char **argv) {
-  int globalCount = 0, globalSamples=TRYS;
+  int globalCount = 0, globalSamples=TRYS, i;
 
-  for(int i = 0; i < globalSamples; ++i) {
-		globalCount += throw();
+  #pragma omp parallel reduction(+:globalCount) num_threads(6)
+  {
+    #pragma omp for
+      for(i = 0; i < globalSamples; ++i) {
+        int add = throw();
+        if (add != 0){
+          globalCount += add;
+        }
+      }
+
+    printf("thread %d: i = %d\n", omp_get_thread_num(), globalCount);
   }
+
 
   double pi = 4.0 * (double)globalCount / (double)(globalSamples);
 

@@ -168,3 +168,16 @@ Der Fehler kann wieder durch mindesten 2 Arten gelöst werden.
     }
 
     3. Nur einen CPU Core verwenden, weil denn die Sections auch sequentiell und nicht parallel ausgeführt werden.
+
+Aufgabe 3
+=========
+
+a)
+--
+
+::
+
+  make run
+
+b)
+--

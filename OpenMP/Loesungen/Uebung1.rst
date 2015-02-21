@@ -88,3 +88,83 @@ Für die Behebung gibt es also 2 Möglichkeiten.
   1. OMP_NUM_THREADS=2
 
   2. l.86 löschen
+
+b)
+--
+
+Der Fehler tritt durch ein Deadlock auf, dies geschieht da die beiden Sections ihre Locks nicht zu Beginn setzen.
+
+In l.45 locked der erste Thread locka und zeitgleich in l. 59 wird durch den anderen Thread lockb gelocked. Laufen nun beide Threads weiter wartet der erste Thread in l.48 auf das unlock von lockb und der andere Thread in l.62 auf das unlock von locka.
+
+Der Fehler kann wieder durch mindesten 2 Arten gelöst werden.
+
+  1. Der Bereich wird nicht paraellisiert sondern sequentiell hintereinander ausgeführt.
+
+  2. Jede Section locked zu beginn all ihre locks in der gleichen Reihenfolge. ::
+
+    #include <omp.h>
+    #include <stdio.h>
+    #include <stdlib.h>
+    #define N 1000000
+    #define PI 3.1415926535
+    #define DELTA .01415926535
+
+    int main (int argc, char *argv[])
+    {
+    int nthreads, tid, i;
+    float a[N], b[N];
+    omp_lock_t locka, lockb;
+
+    /* Initialize the locks */
+    omp_init_lock(&locka);
+    omp_init_lock(&lockb);
+
+    /* Fork a team of threads giving them their own copies of variables */
+    #pragma omp parallel shared(a, b, nthreads, locka, lockb) private(tid)
+      {
+
+      /* Obtain thread number and number of threads */
+      tid = omp_get_thread_num();
+      #pragma omp master
+        {
+        nthreads = omp_get_num_threads();
+        printf("Number of threads = %d\n", nthreads);
+        }
+      printf("Thread %d starting...\n", tid);
+      #pragma omp barrier
+
+      #pragma omp sections nowait
+        {
+        #pragma omp section
+          {
+          printf("Thread %d initializing a[]\n",tid);
+          omp_set_lock(&locka);
+          omp_set_lock(&lockb);
+          for (i=0; i<N; i++)
+            a[i] = i * DELTA;
+          printf("Thread %d adding a[] to b[]\n",tid);
+          for (i=0; i<N; i++)
+            b[i] += a[i];
+          omp_unset_lock(&lockb);
+          omp_unset_lock(&locka);
+          }
+
+        #pragma omp section
+          {
+          printf("Thread %d initializing b[]\n",tid);
+          omp_set_lock(&locka);
+          omp_set_lock(&lockb);
+          for (i=0; i<N; i++)
+            b[i] = i * PI;
+          printf("Thread %d adding b[] to a[]\n",tid);
+          for (i=0; i<N; i++)
+            a[i] += b[i];
+          omp_unset_lock(&locka);
+          omp_unset_lock(&lockb);
+          }
+        }  /* end of sections */
+      }  /* end of parallel region */
+
+    }
+
+    3. Nur einen CPU Core verwenden, weil denn die Sections auch sequentiell und nicht parallel ausgeführt werden.

@@ -4,7 +4,19 @@
 #include <endian.h>
 #include <omp.h>
 
-#define calcIndex(width, x,y)  ((y)*(width) + (x))
+int calcIndex(int width, int x, int y) {
+  if(x > width){
+    x = 0;
+  }else if(x < 0){
+    x = width;
+  }
+  if(y > width){
+    y = 0;
+  }else if(y < 0){
+    y = width;
+  }
+  return y * width + x;
+}
 
 void show(unsigned* currentfield, int w, int h) {
   printf("\033[H");
@@ -63,12 +75,30 @@ int evolve(unsigned* currentfield, unsigned* newfield, int w, int h) {
 int changes = 0;
   for (int y = 0; y < h; y++) {
     for (int x = 0; x < w; x++) {
+      int sum = 0;
+      sum += currentfield[calcIndex(w,x+1,y)];
+      sum += currentfield[calcIndex(w,x+1,y+1)];
+      sum += currentfield[calcIndex(w,x+1,y-1)];
 
-    //TODO add game of life rules
+      sum += currentfield[calcIndex(w,x-1,y)];
+      sum += currentfield[calcIndex(w,x-1,y+1)];
+      sum += currentfield[calcIndex(w,x-1,y-1)];
 
+      sum += currentfield[calcIndex(w,x,y-1)];
+      sum += currentfield[calcIndex(w,x,y+1)];
+      sum += currentfield[calcIndex(w,x,y)];
+
+      if(sum == 2 || sum == 3){
+        newfield[calcIndex(w,x,y)] = 1;
+      } else {
+        newfield[calcIndex(w,x,y)] = 0;
+      }
+
+      if(changes==0 && currentfield[calcIndex(w,x,y)] != newfield[calcIndex(w,x,y)]){
+        changes = 1;
+      }
     }
   }
-//TODO if changes == 0, the time loop will not run!
   return changes;
 }
 
@@ -92,7 +122,7 @@ void game(int w, int h, int timesteps) {
     	break;
     }
 
-   // usleep(200000);
+    usleep(100000);
 
     //SWAP
     unsigned *temp = currentfield;

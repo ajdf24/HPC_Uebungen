@@ -50,22 +50,27 @@ d)
     {
       #pragma omp section
       {
-        printf("Hola Mundo from thread %d of %d\n", omp_get_thread_num(), omp_get_num_threads());
-        printf("Hej varlden from thread %d of %d\n", omp_get_thread_num(), omp_get_num_threads());
+        printf("Hola Mundo from thread %d of %d\n",
+          omp_get_thread_num(), omp_get_num_threads());
+        printf("Hej varlden from thread %d of %d\n",
+          omp_get_thread_num(), omp_get_num_threads());
       }
 
       #pragma omp section
       {
-        printf("Bonjour tout from thread %d of %d\n", omp_get_thread_num(), omp_get_num_threads());
+        printf("Bonjour tout from thread %d of %d\n",
+          omp_get_thread_num(), omp_get_num_threads());
       }
 
       #pragma omp section
       {
-        printf("Hallo Welt from thread %d of %d\n", omp_get_thread_num(), omp_get_num_threads());
+        printf("Hallo Welt from thread %d of %d\n",
+          omp_get_thread_num(), omp_get_num_threads());
       }
       #pragma omp section
       {
-        printf("Hello World from thread %d of %d\n", omp_get_thread_num(), omp_get_num_threads());
+        printf("Hello World from thread %d of %d\n",
+          omp_get_thread_num(), omp_get_num_threads());
       }
     }
     return 0;
@@ -101,6 +106,8 @@ Der Fehler kann wieder durch mindesten 2 Arten gelöst werden.
   1. Der Bereich wird nicht paraellisiert sondern sequentiell hintereinander ausgeführt.
 
   2. Jede Section locked zu beginn all ihre locks in der gleichen Reihenfolge. ::
+
+  ::
 
     #include <omp.h>
     #include <stdio.h>
@@ -167,7 +174,8 @@ Der Fehler kann wieder durch mindesten 2 Arten gelöst werden.
 
     }
 
-    3. Nur einen CPU Core verwenden, weil denn die Sections auch sequentiell und nicht parallel ausgeführt werden.
+
+  3. Nur einen CPU Core verwenden, weil denn die Sections auch sequentiell und nicht parallel ausgeführt werden.
 
 Aufgabe 3
 =========

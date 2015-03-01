@@ -4,16 +4,16 @@
 #include <endian.h>
 #include <omp.h>
 
-int calcIndex(int width, int x, int y) {
+int calcIndex(int width, int heigth, int x, int y) {
   if(x > width){
     x = 0;
   }else if(x < 0){
     x = width;
   }
-  if(y > width){
+  if(y > heigth){
     y = 0;
   }else if(y < 0){
-    y = width;
+    y = heigth;
   }
   return y * width + x;
 }
@@ -21,7 +21,7 @@ int calcIndex(int width, int x, int y) {
 void show(unsigned* currentfield, int w, int h) {
   printf("\033[H");
   for (int y = 0; y < h; y++) {
-    for (int x = 0; x < w; x++) printf(currentfield[calcIndex(w, x,y)] ? "\033[07m  \033[m" : "  ");
+    for (int x = 0; x < w; x++) printf(currentfield[calcIndex(w,h,x,y)] ? "\033[07m  \033[m" : "  ");
     printf("\033[E");
   }
   fflush(stdout);
@@ -62,7 +62,7 @@ void writeVTK(unsigned* currentfield, int w, int h, int t, char* prefix) {
 
   for (int y = 0; y < h; y++) {
     for (int x = 0; x < w; x++) {
-      float value = currentfield[calcIndex(w, x,y)]; // != 0.0 ? 1.0:0.0;
+      float value = currentfield[calcIndex(w, h, x,y)]; // != 0.0 ? 1.0:0.0;
       value = convert2BigEndian(value);
       fwrite(&value, 1, sizeof(float), outfile);
     }
@@ -73,28 +73,29 @@ void writeVTK(unsigned* currentfield, int w, int h, int t, char* prefix) {
 
 int evolve(unsigned* currentfield, unsigned* newfield, int w, int h) {
 int changes = 0;
+
   for (int y = 0; y < h; y++) {
     for (int x = 0; x < w; x++) {
       int sum = 0;
-      sum += currentfield[calcIndex(w,x+1,y)];
-      sum += currentfield[calcIndex(w,x+1,y+1)];
-      sum += currentfield[calcIndex(w,x+1,y-1)];
+      sum += currentfield[calcIndex(w,h,x+1,y)];
+      sum += currentfield[calcIndex(w,h,x+1,y+1)];
+      sum += currentfield[calcIndex(w,h,x+1,y-1)];
 
-      sum += currentfield[calcIndex(w,x-1,y)];
-      sum += currentfield[calcIndex(w,x-1,y+1)];
-      sum += currentfield[calcIndex(w,x-1,y-1)];
+      sum += currentfield[calcIndex(w,h,x-1,y)];
+      sum += currentfield[calcIndex(w,h,x-1,y+1)];
+      sum += currentfield[calcIndex(w,h,x-1,y-1)];
 
-      sum += currentfield[calcIndex(w,x,y-1)];
-      sum += currentfield[calcIndex(w,x,y+1)];
-      sum += currentfield[calcIndex(w,x,y)];
+      sum += currentfield[calcIndex(w,h,x,y-1)];
+      sum += currentfield[calcIndex(w,h,x,y+1)];
+      sum += currentfield[calcIndex(w,h,x,y)];
 
       if(sum == 2 || sum == 3){
-        newfield[calcIndex(w,x,y)] = 1;
+        newfield[calcIndex(w,h,x,y)] = 1;
       } else {
-        newfield[calcIndex(w,x,y)] = 0;
+        newfield[calcIndex(w,h,x,y)] = 0;
       }
 
-      if(changes==0 && currentfield[calcIndex(w,x,y)] != newfield[calcIndex(w,x,y)]){
+      if(changes==0 && currentfield[calcIndex(w,h,x,y)] != newfield[calcIndex(w,h,x,y)]){
         changes = 1;
       }
     }
@@ -115,7 +116,7 @@ void game(int w, int h, int timesteps) {
   filling(currentfield, w, h);
   for (int t = 0; t < timesteps; t++) {
     show(currentfield, w, h);
-    writeVTK(currentfield, w, h, t, "output");
+    //writeVTK(currentfield, w, h, t, "output");
     int changes = evolve(currentfield, newfield, w, h);
     if (changes == 0) {
     	sleep(3);

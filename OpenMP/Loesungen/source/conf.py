@@ -198,7 +198,7 @@ latex_elements = {
 #  author, documentclass [howto, manual, or own class]).
 latex_documents = [
   ('index', 'HPC.tex', 'HPC Übungen',
-   'Sarah Blume Sebastian Rieger', 'howto'),
+   'Sarah Blume, Sebastian Rieger', 'howto'),
 ]
 
 # The name of an image file (relative to this directory) to place at the top of

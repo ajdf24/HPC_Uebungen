@@ -1,10 +1,84 @@
+=======
+Übung 2
+=======
+
 Aufgabe 1
 =========
 
 a)
---
-Bei der Ausführung kann beobachtet werden, das immer nur ein Philosoph gleichzeitig isst bzw. denkt.
-Nach einer weile erfolgt ein wechsel, und ein anderer Philosoph isst bzw. denkt.
-Diese beobachtung wiederholt sich endlos.
+  Bei der Ausführung kann beobachtet werden, das ein Philosoph immer mehrmals hintereinander denkt und isst.
 
-Dies deutet auf nicht, bzw. nicht richtig gesetzte und wieder aufgehobene Locks hin.
+  Nach einer Weile erfolgt ein Wechsel und ein anderer Philosoph isst bzw. denkt.
+  Diese Beobachtung wiederholt sich endlos.
+
+b)
+  Unsere Philosophen sind höflich, nachdem sie geggessen haben, denken sie ersteinmal wieder eine weile nach, dies verhindert Deadlocks, da ihre Kolegen, welche essen wollen in der Zwischenzeit sich die Gabel nehmen/locken können.
+
+  ::
+
+    #include <omp.h>
+    #include <stdio.h>
+    #include <stdlib.h>
+
+    // number of philosophers
+    #define N 5
+    // left neighbour
+    #define LEFT  (id)
+    // right neighbour
+    #define RIGHT ((id + 1) % num_threads)
+
+    #define TRUE  1
+    #define FALSE 0
+
+    // Global variables
+    int num_threads;
+    omp_lock_t forks[N];
+
+    void think(int philosopher) {
+      printf("%d is thinking.\n", philosopher);
+    }
+    void eat(int philosopher) {
+      printf("%d is eating.\n", philosopher);
+    }
+
+    void philosopher(int id) {
+      while(TRUE) {
+        think(id);
+        sleep(1);
+
+        omp_set_lock(&forks[LEFT]);
+        omp_set_lock(&forks[RIGHT]);
+        eat(id);
+        omp_unset_lock(&forks[LEFT]);
+        omp_unset_lock(&forks[RIGHT]);
+      }
+    }
+
+    int main (int argc, char *argv[]) {
+      int i;
+      int id;
+
+      for (i = 0; i < N; i++){
+        omp_init_lock(&forks[i]);
+      }
+
+      omp_set_num_threads(N);
+      #pragma omp parallel private(id) shared(num_threads, forks)
+      {
+        id = omp_get_thread_num();
+        num_threads = omp_get_num_threads();
+
+        philosopher(id);
+      }
+
+      for (i = 0; i < N; i++){
+        omp_destroy_lock(&forks[i]);
+      }
+      return 0;
+    }
+
+Aufgabe 2
+=========
+
+a)
+  

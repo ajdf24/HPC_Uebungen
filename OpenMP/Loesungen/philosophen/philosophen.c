@@ -26,15 +26,13 @@ void eat(int philosopher) {
 void philosopher(int id) {
   while(TRUE) {
     think(id);
-    // get forks
-    
-    //TODO let each  philosopher eat with tow forks, the left and right one!  
-    //omp_set_lock(&forks[LEFT]);
-    //omp_set_lock(&forks[RIGHT]);
+    sleep(1);
+
+    omp_set_lock(&forks[LEFT]);
+    omp_set_lock(&forks[RIGHT]);
     eat(id);
-    // put forks
-    //omp_unset_lock(&forks[LEFT]);
-    //omp_unset_lock(&forks[RIGHT]);
+    omp_unset_lock(&forks[LEFT]);
+    omp_unset_lock(&forks[RIGHT]);
   }
 }
 
@@ -60,4 +58,3 @@ int main (int argc, char *argv[]) {
   }
   return 0;
 }
-

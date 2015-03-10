@@ -54,6 +54,9 @@ a) - c)
 d)
 --
 
+  .. image:: ../../source/bilder/Uebung4_2_1.png
+
+  .. image:: ../../source/bilder/Uebung4_2_2.png
 
 e)
 --
@@ -67,6 +70,7 @@ Aufgabe 3
 =========
 
 a)
+--
 
   Testreihe 1
 
@@ -95,6 +99,10 @@ a)
 
 b)
 --
+
+  .. image:: ../../source/bilder/Uebung4_3_1.png
+
+  .. image:: ../../source/bilder/Uebung4_3_2.png
 
 c)
 --

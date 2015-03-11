@@ -59,7 +59,10 @@ int ParallelStack_get(ParallelStack* pq, char *c) {
   int numReadedChars = 0; // TRUE if the stack was abel to get the data, FALSE if the stack is empty
   omp_set_lock(&pq[0].stacklock);
     if(pq[0].count > -1){
-      *c = pq[0].buffer[pq[0].count];
+      *c = pq[0].buffer[0];
+      for(int i = 0; i < pq[0].count; ++i){
+        pq[0].buffer[i] = pq[0].buffer[i+1];
+      }
       pq[0].count--;
       numReadedChars = TRUE;
     }

@@ -45,28 +45,25 @@ static inline ParallelStack* freeParallelStack(ParallelStack* pq) {
 
 static int ParallelStack_put(ParallelStack* pq, char item) {
   int writtenChars = FALSE; // TRUE if the stack was abel to put the data, FALSE if the stack is full, the data will be rejected
-  omp_set_lock(&pq[0].stacklock);
     if(pq[0].count < pq[0].size){
-      pq[0].count++;
-      pq[0].buffer[pq[0].count] = item;
-      writtenChars = TRUE;
+      omp_set_lock(&pq[0].stacklock);
+        pq[0].count++;
+        pq[0].buffer[pq[0].count] = item;
+        writtenChars = TRUE;
+      omp_unset_lock(&pq[0].stacklock);
     }
-  omp_unset_lock(&pq[0].stacklock);
   return writtenChars;
 }
 
 int ParallelStack_get(ParallelStack* pq, char *c) {
   int numReadedChars = 0; // TRUE if the stack was abel to get the data, FALSE if the stack is empty
-  omp_set_lock(&pq[0].stacklock);
     if(pq[0].count > -1){
-      *c = pq[0].buffer[0];
-      for(int i = 0; i < pq[0].count; ++i){
-        pq[0].buffer[i] = pq[0].buffer[i+1];
-      }
-      pq[0].count--;
-      numReadedChars = TRUE;
+      omp_set_lock(&pq[0].stacklock);
+        *c = pq[0].buffer[pq[0].count];
+        pq[0].count--;
+        numReadedChars = TRUE;
+      omp_unset_lock(&pq[0].stacklock);
     }
-  omp_unset_lock(&pq[0].stacklock);
   return numReadedChars;
 }
 

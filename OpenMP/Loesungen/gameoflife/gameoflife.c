@@ -3,6 +3,7 @@
 #include <unistd.h>
 #include <endian.h>
 #include <omp.h>
+#include <math.h>
 
 int calcIndex(int width, int heigth, int x, int y) {
   if(x > width){
@@ -74,8 +75,8 @@ void writeVTK(unsigned* currentfield, int w, int h, int t, char* prefix) {
 int evolve(unsigned* currentfield, unsigned* newfield, int w, int h) {
 int changes = 0;
 
-  for (int y = 0; y < h; y++) {
-    for (int x = 0; x < w; x++) {
+  for (int y = 1; y < h-1; y++) {
+    for (int x = 1; x < w-1; x++) {
       int sum = 0;
       sum += currentfield[calcIndex(w,h,x+1,y)];
       sum += currentfield[calcIndex(w,h,x+1,y+1)];
@@ -114,13 +115,36 @@ void game(int w, int h, int timesteps) {
   unsigned *newfield     = calloc(w*h, sizeof(unsigned));
 
   filling(currentfield, w, h);
+
   for (int t = 0; t < timesteps; t++) {
-    show(currentfield, w, h);
-    //writeVTK(currentfield, w, h, t, "output");
-    int changes = evolve(currentfield, newfield, w, h);
-    if (changes == 0) {
-    	sleep(3);
-    	break;
+    int num_threads = omp_get_num_threads();
+
+    int subwidth = w / sqrt(num_threads);
+    int subheight = h / sqrt(num_threads);
+
+    #pragma omp parallel {
+      int tid = omp_get_thread_num();
+      unsigned *subfield = calloc((2+subwidth)*(2+subheight), sizeof(unsigned));
+      unsigned *newsubfield = calloc(subwidth*subheight, sizeof(unsigned));
+
+      int row = 0;
+      for(int i = ((w/num_threads)*pid)-1; i < (w*h); i = i + w){
+        for(int j = -1; j < (subwidth + 1); ++j){
+          subfield[j+1 + row*(subwidth + 2)] = currentfield[calcIndex(w, h, i, j)];
+        }
+        row++;
+      }
+
+      int changes = evolve(subfield, newsubfield, subwidth+2, subheight+2);
+      writeVTK(subfield, w, h, t, "output_"+ pid);
+
+      row=0;
+      for(int i = (w/num_threads)*pid ; i < w*h; i = i + w ){
+        for(int j = 0; j < subwidth ; j++){
+          newfield[i+j] = newsubfield[row*subwidth +j];
+        }
+        row++;
+      }
     }
 
     usleep(100000);

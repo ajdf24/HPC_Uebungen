@@ -145,6 +145,10 @@ a)
 b)
 --
 
+.. image:: ../../source/bilder/Uebung4_4_1.png
+
+.. image:: ../../source/bilder/Uebung4_4_2.png
+
 c)
 --
 

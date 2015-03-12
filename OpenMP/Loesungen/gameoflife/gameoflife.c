@@ -125,7 +125,7 @@ void game(int w, int h, int timesteps) {
     #pragma omp parallel {
       int tid = omp_get_thread_num();
       unsigned *subfield = calloc((2+subwidth)*(2+subheight), sizeof(unsigned));
-      unsigned *newsubfield = calloc((2+subwidth)*(2+subheight), sizeof(unsigned));
+      unsigned *newsubfield = calloc(subwidth*subheight, sizeof(unsigned));
 
       int row = 0;
       for(int i = ((w/num_threads)*pid)-1; i < (w*h); i = i + w){
@@ -136,10 +136,14 @@ void game(int w, int h, int timesteps) {
       }
 
       int changes = evolve(subfield, newsubfield, subwidth+2, subheight+2);
-      writeVTK(subfield, w, h, t, "output");
-      if (changes == 0) {
-        sleep(3);
-        break;
+      writeVTK(subfield, w, h, t, "output_"+ pid);
+
+      row=0;
+      for(int i = (w/num_threads)*pid ; i < w*h; i = i + w ){
+        for(int j = 0; j < subwidth ; j++){
+          newfield[i+j] = newsubfield[row*subwidth +j];
+        }
+        row++;
       }
     }
 

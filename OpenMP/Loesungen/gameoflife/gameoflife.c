@@ -5,18 +5,20 @@
 #include <omp.h>
 #include <math.h>
 
+// Hier ist gerade noch ein fehler, die Indexe werden nicht richtig berechnet
+// so ist es aber falsch
 int calcIndex(int width, int heigth, int x, int y) {
   if(x > width){
-    x = 0;
-  }else if(x < 0){
-    x = width;
-  }
-  if(y > heigth){
-    y = 0;
-  }else if(y < 0){
-    y = heigth;
-  }
-  return y * width + x;
+x = 0;
+}else if(x < 0){
+x = width;
+}
+if(y > width){
+y = 0;
+}else if(y < 0){
+y = width;
+}
+return y * width + x;
 }
 
 void show(unsigned* currentfield, int w, int h) {
@@ -73,37 +75,60 @@ void writeVTK(unsigned* currentfield, int w, int h, int t, char* prefix) {
 
 
 int evolve(unsigned* currentfield, unsigned* newfield, int w, int h) {
-int changes = 0;
+int changes = 1;
 
-  for (int y = 1; y < h-1; y++) {
-    for (int x = 1; x < w-1; x++) {
-      int sum = 0;
-      sum += currentfield[calcIndex(w,h,x+1,y)];
-      sum += currentfield[calcIndex(w,h,x+1,y+1)];
-      sum += currentfield[calcIndex(w,h,x+1,y-1)];
 
-      sum += currentfield[calcIndex(w,h,x-1,y)];
-      sum += currentfield[calcIndex(w,h,x-1,y+1)];
-      sum += currentfield[calcIndex(w,h,x-1,y-1)];
 
-      sum += currentfield[calcIndex(w,h,x,y-1)];
-      sum += currentfield[calcIndex(w,h,x,y+1)];
-      sum += currentfield[calcIndex(w,h,x,y)];
+  #pragma omp parallel
+  {
+    int num_threads = omp_get_num_threads();
 
-      if(sum == 2 || sum == 3){
-        newfield[calcIndex(w,h,x,y)] = 1;
-      } else {
-        newfield[calcIndex(w,h,x,y)] = 0;
-      }
+    //Teilen in der Hoehe
+    int partHeight = h/num_threads;
 
-      if(changes==0 && currentfield[calcIndex(w,h,x,y)] != newfield[calcIndex(w,h,x,y)]){
-        changes = 1;
+    //start Index berechnen
+    int startIndex = partHeight * omp_get_thread_num();
+
+
+    //teile in vertikale streifen
+    for (int y = startIndex; y < startIndex + partHeight -1; y++) {
+      for (int x = 1; x < w-1; x++) {
+        int sum = 0;
+        sum += currentfield[calcIndex(w,h,x+1,y)];
+        sum += currentfield[calcIndex(w,h,x+1,y+1)];
+        sum += currentfield[calcIndex(w,h,x+1,y-1)];
+
+        sum += currentfield[calcIndex(w,h,x-1,y)];
+        sum += currentfield[calcIndex(w,h,x-1,y+1)];
+        sum += currentfield[calcIndex(w,h,x-1,y-1)];
+
+        sum += currentfield[calcIndex(w,h,x,y-1)];
+        sum += currentfield[calcIndex(w,h,x,y+1)];
+
+        //Der eigene wert darf nicht mitgezählt werden
+        //sum += currentfield[calcIndex(w,h,x,y)];
+
+        // Bei zwei überlebt es bei anderen werten stirbt es (Wert wird übernommen)
+        if(sum == 2){
+          newfield[calcIndex(w,h,x,y)] = currentfield[calcIndex(w,h,x,y)];
+        } else {
+          newfield[calcIndex(w,h,x,y)] = 0;
+        }
+
+        // Wir erweckt, bzw. lebte schon
+        if(sum == 3){
+          newfield[calcIndex(w,h,x,y)] = 1;
+        }
+
+        if(changes==0 && currentfield[calcIndex(w,h,x,y)] != newfield[calcIndex(w,h,x,y)]){
+          changes = 1;
+        }
       }
     }
   }
   return changes;
-}
 
+}
 void filling(unsigned* currentfield, int w, int h) {
   for (int i = 0; i < h*w; i++) {
     currentfield[i] = (rand() < RAND_MAX / 10) ? 1 : 0; ///< init domain randomly
@@ -111,52 +136,28 @@ void filling(unsigned* currentfield, int w, int h) {
 }
 
 void game(int w, int h, int timesteps) {
-  unsigned *currentfield = calloc(w*h, sizeof(unsigned));
-  unsigned *newfield     = calloc(w*h, sizeof(unsigned));
+    unsigned *currentfield = calloc(w*h, sizeof(unsigned));
+    unsigned *newfield = calloc(w*h, sizeof(unsigned));
 
-  filling(currentfield, w, h);
+    filling(currentfield, w, h);
 
-  for (int t = 0; t < timesteps; t++) {
-    int num_threads = omp_get_num_threads();
+    for (int t = 0; t < timesteps; t++) {
 
-    int subwidth = w / sqrt(num_threads);
-    int subheight = h / sqrt(num_threads);
-
-    #pragma omp parallel {
-      int tid = omp_get_thread_num();
-      unsigned *subfield = calloc((2+subwidth)*(2+subheight), sizeof(unsigned));
-      unsigned *newsubfield = calloc(subwidth*subheight, sizeof(unsigned));
-
-      int row = 0;
-      for(int i = ((w/num_threads)*pid)-1; i < (w*h); i = i + w){
-        for(int j = -1; j < (subwidth + 1); ++j){
-          subfield[j+1 + row*(subwidth + 2)] = currentfield[calcIndex(w, h, i, j)];
-        }
-        row++;
+      show(currentfield, w, h);
+      writeVTK(currentfield, w, h, t, "output");
+      int changes = evolve(currentfield, newfield, w, h);
+      if (changes == 0) {
+        sleep(3);
+        break;
       }
-
-      int changes = evolve(subfield, newsubfield, subwidth+2, subheight+2);
-      writeVTK(subfield, w, h, t, "output_"+ pid);
-
-      row=0;
-      for(int i = (w/num_threads)*pid ; i < w*h; i = i + w ){
-        for(int j = 0; j < subwidth ; j++){
-          newfield[i+j] = newsubfield[row*subwidth +j];
-        }
-        row++;
-      }
+      usleep(100000);
+      //SWAP
+      unsigned *temp = currentfield;
+      currentfield = newfield;
+      newfield = temp;
     }
-
-    usleep(100000);
-
-    //SWAP
-    unsigned *temp = currentfield;
-    currentfield = newfield;
-    newfield = temp;
-  }
-
-  free(currentfield);
-  free(newfield);
+    free(currentfield);
+    free(newfield);
 }
 
 int main(int c, char **v) {

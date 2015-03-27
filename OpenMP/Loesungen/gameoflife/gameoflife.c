@@ -104,21 +104,27 @@ int changes = 1;
         sum += currentfield[calcIndex(w,h,x,y-1)];
         sum += currentfield[calcIndex(w,h,x,y+1)];
 
-        //Der eigene wert darf nicht mitgezählt werden
-        //sum += currentfield[calcIndex(w,h,x,y)];
+        if(!currentfield[calcIndex(w,h,x,y)] && (2 == sum)){
+          newfield[calcIndex(w,h,x,y)] = 0;
+        }
+        if(!underpopulated(sum) && !overpopulated(sum)){
+          newfield[calcIndex(w,h,x,y)] = 1;
+        }else{
+          newfield[calcIndex(w,h,x,y)] = 0;
+        }
 
-        // Bei zwei überlebt es bei anderen werten stirbt es (Wert wird übernommen)
-        if(sum == 2){
+        // Bei zwei überlebt es, bei anderen werten stirbt es (Wert wird übernommen)
+        /*if(sum == 2){
           newfield[calcIndex(w,h,x,y)] = currentfield[calcIndex(w,h,x,y)];
         } else {
           newfield[calcIndex(w,h,x,y)] = 0;
         }
 
-        // Wir erweckt, bzw. lebte schon
+        // Wird erweckt, bzw. lebte schon
         if(sum == 3){
           newfield[calcIndex(w,h,x,y)] = 1;
         }
-
+        */
         if(changes==0 && currentfield[calcIndex(w,h,x,y)] != newfield[calcIndex(w,h,x,y)]){
           changes = 1;
         }
@@ -157,6 +163,21 @@ void game(int w, int h, int timesteps) {
     }
     free(currentfield);
     free(newfield);
+}
+
+int underpopulated(int sum){
+  if(sum < 2){
+    return 1;
+  }else{
+    return 0;
+  }
+}
+int overpopulated(int sum){
+  if(sum > 3){
+    return 1;
+  }else{
+    return 0;
+  }
 }
 
 int main(int c, char **v) {

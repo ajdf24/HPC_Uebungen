@@ -7,18 +7,17 @@
 
 // Hier ist gerade noch ein fehler, die Indexe werden nicht richtig berechnet
 // so ist es aber falsch
-int calcIndex(int width, int heigth, int x, int y) {
+int calcIndex(int width, int height, int x, int y) {
+  if(x > width && y > width){
+    return 0;
+  }
   if(x > width){
-x = 0;
-}else if(x < 0){
-x = width;
-}
-if(y > width){
-y = 0;
-}else if(y < 0){
-y = width;
-}
-return y * width + x;
+    x = width - x;
+  }
+  if(y > height){
+    y = height - y;
+  }
+  return y * width + x;
 }
 
 void show(unsigned* currentfield, int w, int h) {

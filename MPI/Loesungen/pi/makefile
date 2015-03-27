@@ -16,7 +16,7 @@ $(TARGET): $(TARGET).c
 	$(CC) $(CFLAGS) -o $(TARGET) $(TARGET).c
 
 run: all
-	mpirun -n 20 ./$(TARGET)
+	mpirun -n 5 ./$(TARGET)
 
 clean:
 	$(RM) $(TARGET)

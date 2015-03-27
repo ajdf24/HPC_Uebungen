@@ -40,12 +40,9 @@ static void a(double pi) {
 
 static void b(double pi) {
   //Nachbar austausch
-  //TODO part b
   double receivedPi;
   int length = 1;
   MPI_Status status;
-  //Ring
-  //TODO part a
   if(rank == 0){
     MPI_Send(&pi, length, MPI_DOUBLE, rank + 1, 99, MPI_COMM_WORLD);
     MPI_Recv(&receivedPi, 1, MPI_DOUBLE, size - 1, 99, MPI_COMM_WORLD, &status);

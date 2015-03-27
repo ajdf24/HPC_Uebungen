@@ -26,7 +26,7 @@ static void a(double pi) {
     MPI_Send(&pi, length, MPI_DOUBLE, rank + 1, 99, MPI_COMM_WORLD);
     MPI_Recv(&receivedPi, 1, MPI_DOUBLE, size - 1, 99, MPI_COMM_WORLD, &status);
     pi = (pi + receivedPi)/2;
-    printf("pi from ring is %.9lf\n", pi);
+    printf("pi from Ring is %.9lf\n", pi);
   }else if(rank < size - 1){
     MPI_Recv(&receivedPi, 1, MPI_DOUBLE, rank - 1, 99, MPI_COMM_WORLD, &status);
     pi = (pi + receivedPi)/2;

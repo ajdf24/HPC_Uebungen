@@ -49,22 +49,25 @@ static void b(double pi) {
   //TODO part a
   if(rank == 0){
     MPI_Send(&pi, length, MPI_DOUBLE, rank + 1, 99, MPI_COMM_WORLD);
-    MPI_Send(&pi, length, MPI_DOUBLE, size -1 , 99, MPI_COMM_WORLD);
     MPI_Recv(&receivedPi, 1, MPI_DOUBLE, size - 1, 99, MPI_COMM_WORLD, &status);
+    pi = (pi + receivedPi)/2;
+    MPI_Send(&pi, length, MPI_DOUBLE, size -1 , 99, MPI_COMM_WORLD);
     MPI_Recv(&receivedPi2, 1, MPI_DOUBLE, rank + 1, 99, MPI_COMM_WORLD, &status);
-    pi = (pi + receivedPi + receivedPi2)/3;
-    printf("pi from Ring is %.9lf\n", pi);
+    pi = (pi + receivedPi)/2;
+    printf("pi from Austausch is %.9lf\n", pi);
   }else if(rank < size - 1){
     MPI_Recv(&receivedPi, 1, MPI_DOUBLE, rank - 1, 99, MPI_COMM_WORLD, &status);
-    MPI_Recv(&receivedPi2, 1, MPI_DOUBLE, rank + 1, 99, MPI_COMM_WORLD, &status);
-    pi = (pi + receivedPi + receivedPi2)/3;
+    pi = (pi + receivedPi)/2;
     MPI_Send(&pi, length, MPI_DOUBLE, rank + 1, 99, MPI_COMM_WORLD);
+    MPI_Recv(&receivedPi, 1, MPI_DOUBLE, rank + 1, 99, MPI_COMM_WORLD, &status);
+    pi = (pi + receivedPi)/2;
     MPI_Send(&pi, length, MPI_DOUBLE, rank - 1, 99, MPI_COMM_WORLD);
   }else{
     MPI_Recv(&receivedPi, 1, MPI_DOUBLE, rank - 1, 99, MPI_COMM_WORLD, &status);
-    MPI_Recv(&receivedPi2, 1, MPI_DOUBLE, 0, 99, MPI_COMM_WORLD, &status);
-    pi = (pi + receivedPi + receivedPi2)/3;
+    pi = (pi + receivedPi)/2;
     MPI_Send(&pi, length, MPI_DOUBLE, 0, 99, MPI_COMM_WORLD);
+    MPI_Recv(&receivedPi, 1, MPI_DOUBLE, 0, 99, MPI_COMM_WORLD, &status);
+    pi = (pi + receivedPi)/2;
     MPI_Send(&pi, length, MPI_DOUBLE, rank - 1, 99, MPI_COMM_WORLD);
   }
 

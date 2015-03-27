@@ -36,18 +36,6 @@ static void a(double pi) {
     pi = (pi + receivedPi)/2;
     MPI_Send(&pi, length, MPI_DOUBLE, 0, 99, MPI_COMM_WORLD);
   }
-  /*
-  if(rank == size-1){
-    MPI_Send(&pi, length, MPI_DOUBLE, 0, 99, MPI_COMM_WORLD);
-  }else{
-    MPI_Send(&pi, length, MPI_DOUBLE, rank + 1, 99, MPI_COMM_WORLD);
-  }
-  if(rank == 0){
-    MPI_Recv(&receivedPi, 1, MPI_DOUBLE, size - 1, 99, MPI_COMM_WORLD, &status);
-  }else{
-    MPI_Recv(&receivedPi, 1, MPI_DOUBLE, rank - 1, 99, MPI_COMM_WORLD, &status);
-  }
-  */
 }
 
 static void b(double pi) {

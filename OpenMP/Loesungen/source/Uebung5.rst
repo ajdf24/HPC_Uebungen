@@ -31,3 +31,32 @@ b) ::
 c)
 
   Die Ausgabe ist nicht konstant, weil die Threads bei jeder Ausgabe unterschiedlich schnell sind.
+
+Aufgabe 1
+=========
+a)::
+
+  static void a(double pi) {
+    double receivedPi;
+    int length = 1;
+    MPI_Status status;
+    //Ring
+    //TODO part a
+    if(rank == 0){
+      MPI_Send(&pi, length, MPI_DOUBLE, rank + 1, 99, MPI_COMM_WORLD);
+      MPI_Recv(&receivedPi, 1, MPI_DOUBLE, size - 1, 99, MPI_COMM_WORLD, &status);
+      pi = (pi + receivedPi)/2;
+      printf("pi from Ring is %.9lf\n", pi);
+    }else if(rank < size - 1){
+      MPI_Recv(&receivedPi, 1, MPI_DOUBLE, rank - 1, 99, MPI_COMM_WORLD, &status);
+      pi = (pi + receivedPi)/2;
+      MPI_Send(&pi, length, MPI_DOUBLE, rank + 1, 99, MPI_COMM_WORLD);
+    }else{
+      MPI_Recv(&receivedPi, 1, MPI_DOUBLE, rank - 1, 99, MPI_COMM_WORLD, &status);
+      pi = (pi + receivedPi)/2;
+      MPI_Send(&pi, length, MPI_DOUBLE, 0, 99, MPI_COMM_WORLD);
+    }
+  }
+
+
+  Jeder Prozess, sendet und empfängt eine Nachricht. Somit werden n Sende- und Empfangsschritte benötigt, wobei n die Anzahl der Prozesse darstellt.

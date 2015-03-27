@@ -42,7 +42,6 @@ static void b(double pi) {
   //Nachbar austausch
   //TODO part b
   double receivedPi;
-  double receivedPi2;
   int length = 1;
   MPI_Status status;
   //Ring
@@ -52,7 +51,7 @@ static void b(double pi) {
     MPI_Recv(&receivedPi, 1, MPI_DOUBLE, size - 1, 99, MPI_COMM_WORLD, &status);
     pi = (pi + receivedPi)/2;
     MPI_Send(&pi, length, MPI_DOUBLE, size -1 , 99, MPI_COMM_WORLD);
-    MPI_Recv(&receivedPi2, 1, MPI_DOUBLE, rank + 1, 99, MPI_COMM_WORLD, &status);
+    MPI_Recv(&receivedPi, 1, MPI_DOUBLE, rank + 1, 99, MPI_COMM_WORLD, &status);
     pi = (pi + receivedPi)/2;
     printf("pi from Austausch is %.9lf\n", pi);
   }else if(rank < size - 1){

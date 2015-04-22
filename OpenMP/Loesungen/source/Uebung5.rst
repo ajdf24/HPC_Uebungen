@@ -94,3 +94,37 @@ b)::
   }
 
   Jeder Prozess, sendet und empfängt zwei Nachrichten. Somit werden n*2 Sende- und Empfangsschritte benötigt, wobei n die Anzahl der Prozesse darstellt.
+
+c)::
+
+
+FEHLT NOCH!!!!
+
+d)::
+
+
+FEHLT NOCH!!!
+
+e+f)::
+
+.. image:: ../../source/bilder/Aufgabe2_e+f_Austausch.jpg
+
+.. image:: ../../source/bilder/Aufgabe2_e+f_Broadcast.jpg
+
+.. image:: ../../source/bilder/Aufgabe2_e+f_Ring.jpg
+
+Aufgabe 2
+=========
+a)::
+
+FEHLT NOCH!!!!
+
+b)::
+
+
+FEHLT NOCH!!!
+
+c)::
+
+Da die maximalen Datenraten von Festplatten und Netzwerktechniken begränzt sind, muss der I/O gebremst werden.
+Würden extrem viele Prozesse auf einmal auf ein Laufwerke zugreifen, wäre eine Überlastung vorprogrammiert!

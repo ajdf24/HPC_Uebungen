@@ -1,5 +1,5 @@
 =======
-Übung 2
+Übung 5
 =======
 
 Aufgabe 1
@@ -98,12 +98,39 @@ b)::
 c)::
 
 
-FEHLT NOCH!!!!
+  double sumPi;
+  double avageragePi;
+  int length = 1;
+  int root = 0;
+
+  MPI_Reduce(&pi, &sumPi, length, MPI_DOUBLE, MPI_SUM, root, MPI_COMM_WORLD );
+
+  if (rank == root){
+    avageragePi = sumPi/size;
+    printf("pi from Reduce&BroadCast is %.9lf\n", avageragePi);
+
+    MPI_Bcast(&avageragePi, 1, MPI_DOUBLE, root, MPI_COMM_WORLD);
+  } else {
+    MPI_Bcast(&avageragePi, 1, MPI_DOUBLE, root, MPI_COMM_WORLD);
+  }
+
+  Aufgabe gelöst über MPI Reduce.
 
 d)::
 
+  double sumPi;
+  double avageragePi;
+  int length = 1;
+  int root = 0;
 
-FEHLT NOCH!!!
+  MPI_Allreduce(&pi, &sumPi, length, MPI_DOUBLE, MPI_SUM, MPI_COMM_WORLD );
+
+  avageragePi = sumPi/size;
+  if (rank == root){
+    printf("pi from Allreduce is %.9lf\n", avageragePi);
+  }
+
+  Aufgabe gelößt über MPI ReduceAll.
 
 e+f)::
 
@@ -113,7 +140,9 @@ e+f)::
 
 .. image:: ../../source/bilder/Aufgabe2_e+f_Ring.jpg
 
-Aufgabe 2
+.. image:: ../../source/bilder/Aufgabe2_e+f_AllReduce.jpg
+
+Aufgabe 3
 =========
 a)::
 

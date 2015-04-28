@@ -71,9 +71,23 @@ static void b(double pi) {
 
 static void c(double pi) {
   //Collective Pi I
-  //TODO part c
 
+  double receivedPi;
+  double sumPi;
+  int length = 1;
 
+  MPI_Bcast(&pi, 1, MPI_DOUBLE, rank, MPI_COMM_WORLD);
+
+  for(int i = 0, i < size, i++){
+    MPI_Bcast(&receivedPi, length, MPI_DOUBLE, i, MPI_COMM_WORLD);
+    sumPi = sumPi + receivedPi;
+  }
+
+  sumPi = sumPi/rank;
+  if(rank == 0){
+    printf("pi from BroadCast is %.9lf\n", pi);
+  }
+  
 }
 
 static void d(double pi) {

@@ -72,28 +72,36 @@ static void b(double pi) {
 static void c(double pi) {
   //Collective Pi I
 
-  double receivedPi;
   double sumPi;
+  double avageragePi;
   int length = 1;
+  int root = 0;
 
-  MPI_Bcast(&pi, 1, MPI_DOUBLE, rank, MPI_COMM_WORLD);
+  MPI_Reduce(&pi, &sumPi, length, MPI_DOUBLE, MPI_SUM, root, MPI_COMM_WORLD );
 
-  for(int i = 0, i < size, i++){
-    MPI_Bcast(&receivedPi, length, MPI_DOUBLE, i, MPI_COMM_WORLD);
-    sumPi = sumPi + receivedPi;
+  if (rank == root){
+    avageragePi = sumPi/size;
+    printf("pi from Reduce&BroadCast is %.9lf\n", avageragePi);
+
+    MPI_Bcast(&avageragePi, 1, MPI_DOUBLE, root, MPI_COMM_WORLD);
+  } else {
+    MPI_Bcast(&avageragePi, 1, MPI_DOUBLE, root, MPI_COMM_WORLD);
   }
-
-  sumPi = sumPi/rank;
-  if(rank == 0){
-    printf("pi from BroadCast is %.9lf\n", pi);
-  }
-  
 }
 
 static void d(double pi) {
   //Collective Pi II
-  //TODO part d
+  double sumPi;
+  double avageragePi;
+  int length = 1;
+  int root = 0;
 
+  MPI_Allreduce(&pi, &sumPi, length, MPI_DOUBLE, MPI_SUM, MPI_COMM_WORLD );
+
+  avageragePi = sumPi/size;
+  if (rank == root){
+    printf("pi from Allreduce is %.9lf\n", avageragePi);
+  }
 }
 
 int main(int argc, char **argv) {

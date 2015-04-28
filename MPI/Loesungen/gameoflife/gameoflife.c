@@ -14,7 +14,7 @@ void show(unsigned* currentfield, int w, int h) {
   }
   fflush(stdout);
 }
- 
+
 
 float convert2BigEndian( const float inFloat )
 {
@@ -36,18 +36,18 @@ void writeVTK(unsigned* currentfield, int w, int h, int t, char* prefix) {
   sprintf(name, "%s_%d.vtk", prefix, t);
   FILE* outfile = fopen(name, "w");
 
-  /*Write vtk header */                                                           
-  fprintf(outfile,"# vtk DataFile Version 3.0\n");       
-  fprintf(outfile,"frame %d\n", t);     
-  fprintf(outfile,"BINARY\n");     
-  fprintf(outfile,"DATASET STRUCTURED_POINTS\n");     
-  fprintf(outfile,"DIMENSIONS %d %d %d \n", w, h, 1);        
-  fprintf(outfile,"SPACING 1.0 1.0 1.0\n");//or ASPECT_RATIO                            
-  fprintf(outfile,"ORIGIN 0 0 0\n");                                              
-  fprintf(outfile,"POINT_DATA %d\n", h*w);                                    
-  fprintf(outfile,"SCALARS data float 1\n");                              
-  fprintf(outfile,"LOOKUP_TABLE default\n");         
- 
+  /*Write vtk header */
+  fprintf(outfile,"# vtk DataFile Version 3.0\n");
+  fprintf(outfile,"frame %d\n", t);
+  fprintf(outfile,"BINARY\n");
+  fprintf(outfile,"DATASET STRUCTURED_POINTS\n");
+  fprintf(outfile,"DIMENSIONS %d %d %d \n", w, h, 1);
+  fprintf(outfile,"SPACING 1.0 1.0 1.0\n");//or ASPECT_RATIO
+  fprintf(outfile,"ORIGIN 0 0 0\n");
+  fprintf(outfile,"POINT_DATA %d\n", h*w);
+  fprintf(outfile,"SCALARS data float 1\n");
+  fprintf(outfile,"LOOKUP_TABLE default\n");
+
   for (int y = 0; y < h; y++) {
     for (int x = 0; x < w; x++) {
       float value = currentfield[calcIndex(w, x,y)]; // != 0.0 ? 1.0:0.0;
@@ -69,7 +69,7 @@ int coutLifingsPeriodic(unsigned* currentfield, int x , int y, int w, int h) {
   }
   return n;
 }
- 
+
 int evolve(unsigned* currentfield, unsigned* newfield, int w, int h) {
 int changes = 0;
   for (int y = 0; y < h; y++) {
@@ -77,7 +77,7 @@ int changes = 0;
       int n = coutLifingsPeriodic(currentfield, x , y, w, h);
       if (currentfield[calcIndex(w, x,y)]) n--;
       newfield[calcIndex(w, x,y)] = (n == 3 || (n == 2 && currentfield[calcIndex(w, x,y)]));
-      
+
       if (newfield[calcIndex(w, x,y)] - currentfield[calcIndex(w, x,y)] != 0) {
         changes++;
       }
@@ -85,30 +85,30 @@ int changes = 0;
   }
   return changes;
 }
- 
+
 void filling(unsigned* currentfield, int w, int h) {
   for (int i = 0; i < h*w; i++) {
     currentfield[i] = (rand() < RAND_MAX / 10) ? 1 : 0; ///< init domain randomly
   }
 }
- 
+
 void game(int w, int h, int timesteps) {
   unsigned *currentfield = calloc(w*h, sizeof(unsigned));
   unsigned *newfield     = calloc(w*h, sizeof(unsigned));
-  
+
   filling(currentfield, w, h);
   for (int t = 0; t < timesteps; t++) {
-    
+
    //TODO output
    show(currentfield, w, h);
    //writeVTK(currentfield, w, h, t, "output");
    int changes = evolve(currentfield, newfield, w, h);
-   //TODO exit loop if all processes report no more changes 
+   //TODO exit loop if all processes report no more changes
    if (changes == 0) break;
- 
+
    //TODO exchange boundary
 
-    
+
    // usleep(200000);
 
     //SWAP
@@ -116,23 +116,31 @@ void game(int w, int h, int timesteps) {
     currentfield = newfield;
     newfield = temp;
   }
-  
+
   free(currentfield);
   free(newfield);
 }
- 
+
 int main(int c, char **v) {
    int w = 30, h = 30, timesteps = 10;
   if (c > 1) w = atoi(v[1]); ///< read width
   if (c > 2) h = atoi(v[2]); ///< read height
   if (c > 3) timesteps = atoi(v[3]);
- 
-  //TODO init MPI
+
+  //init MPI
+  int rank, size;
+  MPI_Status status;
+
+  MPI_Init(&c, &v);
+  MPI_Comm_size(MPI_COMM_WORLD, &size);
+  MPI_Comm_rank(MPI_COMM_WORLD, &rank);
+
   //
   //TODO decompose Domain and proesses with 1D domain decompositon
   game(w, h, timesteps);
- 
-  //TODO deinit MPI
-  //
+
+  //deinit MPI
+  MPI_Finalize();
+
   return 0;
 }

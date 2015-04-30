@@ -7,12 +7,12 @@
 
 int rank, size;
 
-int token-a;
-int token-b[N];
+int tokenA;
+int tokenB[N];
 
 static void writeData(void) {
   printf("%d is writing data\n", rank);
-  fflush(stdout); 
+  fflush(stdout);
 }
 
 
@@ -21,16 +21,16 @@ static void a(void) {
   //TODO part a
   // Use token-a
   writeData();
-  
+
 }
 
 
 static void b(void) {
-  
+
   //TODO part b
   //use token-b[]
   writeData();
-  
+
 }
 
 
@@ -45,7 +45,7 @@ int main(int argc, char **argv) {
   a();
 
   b();
-  
+
   MPI_Finalize();
   return 0;
 }

@@ -7,8 +7,8 @@
 
 int rank, size;
 
-int tokenA;
-int tokenB[N];
+int token-a;
+int token-b[N];
 
 static void writeData(void) {
   printf("%d is writing data\n", rank);

@@ -7,7 +7,7 @@
 
 int rank, size;
 
-int tokenA;
+int tokenA = 0;
 int tokenB[N];
 
 static void writeData(void) {
@@ -17,7 +17,7 @@ static void writeData(void) {
 
 
 static void a(void) {
-  printf("tokenA %d", tokenA);
+  printf("tokenA %d\n", tokenA);
   //TODO part a
   // Use token-a
   // printf("in if %d", rank);
@@ -47,10 +47,6 @@ static void b(void) {
 
 
 int main(int argc, char **argv) {
-
-  printf("vor token");
-  tokenA = 0;
-  printf("nach token");
 
   MPI_Init (&argc, &argv);                      /* starts MPI */
   MPI_Comm_rank (MPI_COMM_WORLD, &rank);        /* get current process id */

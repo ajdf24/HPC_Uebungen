@@ -20,9 +20,10 @@ static void a(void) {
   printf("tokenA %d", tokenA);
   //TODO part a
   // Use token-a
+  printf("in if %d", rank);
   while(1){
     if(tokenA = 0){
-      printf("in if %d", rank);
+
       tokenA = 1;
       writeData();
       tokenA = 0;

@@ -23,7 +23,7 @@ static void a(void) {
   // printf("in if %d", rank);
   while(1){
     //printf("in while");
-    if(tokenA = 0){
+    if(tokenA == 0){
       printf("in if %d", rank);
       tokenA = 1;
       writeData();

@@ -21,7 +21,8 @@ static void a(void) {
   //TODO part a
   // Use token-a
   // printf("in if %d", rank);
-/*while(1){
+  while(1){
+    printf("in while")
     if(tokenA = 0){
 
       tokenA = 1;
@@ -29,7 +30,7 @@ static void a(void) {
       tokenA = 0;
       break;
     }
-  }*/
+  }
 
 
 }

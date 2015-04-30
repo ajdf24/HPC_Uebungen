@@ -22,7 +22,7 @@ static void a(void) {
   // Use token-a
   // printf("in if %d", rank);
   while(1){
-    printf("in while")
+    printf("in while");
     if(tokenA = 0){
 
       tokenA = 1;

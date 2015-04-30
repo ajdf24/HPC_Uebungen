@@ -146,12 +146,42 @@ Aufgabe 3
 =========
 a)::
 
-FEHLT NOCH!!!!
+  while(1){
+    //printf("in while");
+    if(tokenA == 0){
+      tokenA = 1;
+      writeData();
+      tokenA = 0;
+      break;
+    }
+  }
+
+  In einer Schleife wird gewartet, bis das Token frei ist. Ist dies der Fall, locked der Thread das Token und schreibt.
+  Nach dem schreiben gibt er das Token wieder frei. In der Zeit, wo das Token blockiert ist, kann kein anderer Thread schreiben.
+
 
 b)::
 
 
-FEHLT NOCH!!!
+  while(1){
+    //printf("in while");
+    int i;
+    int wasWritten = 0;
+    for(i = 0; i < N; i++){
+      if(tokenB[i] == 0){
+        tokenB[i] = 1;
+        writeData();
+        wasWritten = 1;
+        tokenB[i] = 0;
+        break;
+      }
+    }
+    if(wasWritten)
+      break;
+
+  }
+
+  Wie Aufgabe a, so verhält sich auch Aufgabe b, nur das hier drei Token zur Verfügung stehen, welche gleichzeitig allokiert werden können.  
 
 c)::
 

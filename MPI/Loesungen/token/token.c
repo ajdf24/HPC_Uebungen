@@ -8,7 +8,7 @@
 int rank, size;
 
 int tokenA = 0;
-int tokenB[N];
+int tokenB[N] = {0,0,0};
 
 static void writeData(void) {
   printf("%d is writing data\n", rank);
@@ -17,14 +17,11 @@ static void writeData(void) {
 
 
 static void a(void) {
-  printf("tokenA %d\n", tokenA);
   //TODO part a
   // Use token-a
-  // printf("in if %d", rank);
   while(1){
     //printf("in while");
     if(tokenA == 0){
-      printf("in if %d", rank);
       tokenA = 1;
       writeData();
       tokenA = 0;
@@ -40,7 +37,23 @@ static void b(void) {
 
   //TODO part b
   //use token-b[]
-  writeData();
+  while(1){
+    //printf("in while");
+    int i;
+    int wasWritten = 0;
+    for(i = 0; i < N; i++){
+      if(tokenB[i] == 0){
+        tokenB[i] = 1;
+        writeData();
+        wasWritten = 1;
+        tokenB[i] = 0;
+        break;
+      }
+    }
+    if(wasWritten)
+      break;
+
+  }
 
 }
 

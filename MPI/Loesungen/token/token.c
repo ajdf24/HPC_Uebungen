@@ -20,8 +20,8 @@ static void a(void) {
   printf("tokenA %d", tokenA);
   //TODO part a
   // Use token-a
-  printf("in if %d", rank);
-  while(1){
+  // printf("in if %d", rank);
+/*while(1){
     if(tokenA = 0){
 
       tokenA = 1;
@@ -29,7 +29,7 @@ static void a(void) {
       tokenA = 0;
       break;
     }
-  }
+  }*/
 
 
 }
@@ -52,7 +52,9 @@ int main(int argc, char **argv) {
   MPI_Comm_rank (MPI_COMM_WORLD, &rank);        /* get current process id */
   MPI_Comm_size (MPI_COMM_WORLD, &size);        /* get number of processes */
 
+  printf("vor token");
   tokenA = 0;
+  printf("nach token");
 
   a();
 

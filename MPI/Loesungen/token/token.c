@@ -20,6 +20,7 @@ static void a(void) {
 
   //TODO part a
   // Use token-a
+  printf("%d token ??? \n", tokenA);
   writeData();
 
 }

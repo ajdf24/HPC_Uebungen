@@ -17,7 +17,7 @@ static void writeData(void) {
 
 
 static void a(void) {
-
+  printf("tokenA %d", tokenA);
   //TODO part a
   // Use token-a
   while(1){

@@ -20,7 +20,7 @@ static void a(void) {
 
   //TODO part a
   // Use token-a
-  while(true){
+  while(1){
     if(tokenA = 0){
       tokenA = 1;
       writeData();

@@ -42,7 +42,8 @@ b)
   MPI_Cart_shift(card_comm, 1, -1, &rank_source, &left_neighbour_rank);
   MPI_Cart_shift(card_comm, 1, 1, &rank_source, &right_neighbour_rank);
 
-  printf("Rank ID: %d, Left Neighbour rank: %d , Right Neighbour rank: %d \n", cart_rank, left_neighbour_rank, right_neighbour_rank);
+  printf("Rank ID: %d, Left Neighbour rank: %d , Right Neighbour rank: %d \n", cart_rank,
+    left_neighbour_rank, right_neighbour_rank);
 
 c)
 ==
@@ -148,8 +149,6 @@ f)
 
 g)
 ==
-
-::
 
   Bei der 2D Zerlegung muss der Randaustausch in beide Richtungen durchgeführt werden. Was ihn komplizierter macht.
 

@@ -64,11 +64,10 @@ a)
 
 Aufgabe 2
 =========
+::
 
   int evolve(unsigned* currentfield, unsigned* newfield, int w, int h) {
   int changes = 1;
-
-
 
     #pragma omp parallel
     {
@@ -115,4 +114,4 @@ Aufgabe 2
 
   }
 
-  Das Feld wird in vertikale Streifen geteilt und dann berechnet. Am Ende werden die Streifen wieder zu einem Feld zusammengesetzt.
+Das Feld wird in vertikale Streifen geteilt und dann berechnet. Am Ende werden die Streifen wieder zu einem Feld zusammengesetzt.

@@ -113,18 +113,6 @@ int changes = 1;
           newfield[calcIndex(w,h,x,y)] = 0;
         }
 
-        // Bei zwei überlebt es, bei anderen werten stirbt es (Wert wird übernommen)
-        /*if(sum == 2){
-          newfield[calcIndex(w,h,x,y)] = currentfield[calcIndex(w,h,x,y)];
-        } else {
-          newfield[calcIndex(w,h,x,y)] = 0;
-        }
-
-        // Wird erweckt, bzw. lebte schon
-        if(sum == 3){
-          newfield[calcIndex(w,h,x,y)] = 1;
-        }
-        */
         if(changes==0 && currentfield[calcIndex(w,h,x,y)] != newfield[calcIndex(w,h,x,y)]){
           changes = 1;
         }

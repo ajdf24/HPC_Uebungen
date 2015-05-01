@@ -4,7 +4,7 @@ CC = mpicc
 # compiler flags:
 #  -g    adds debugging information to the executable file
 #  -Wall turns on most, but not all, compiler warnings
-CFLAGS  = -g -Wall -std=c99 -lc -D _BSD_SOURCE 
+CFLAGS  = -g -Wall -std=c99 -lc -D _BSD_SOURCE
 
 
 # the build target executable:

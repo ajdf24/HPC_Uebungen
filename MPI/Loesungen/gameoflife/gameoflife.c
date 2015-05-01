@@ -130,14 +130,21 @@ int main(int c, char **v) {
   //init MPI
   int rank, size;
   MPI_Status status;
+  MPI_Comm card_comm;
+  int dim[1], periodic [1];
+  periodic[0] = 0;
+  int reorder = 1;
 
   MPI_Init(&c, &v);
   MPI_Comm_size(MPI_COMM_WORLD, &size);
   MPI_Comm_rank(MPI_COMM_WORLD, &rank);
 
-  //
-  //TODO decompose Domain and proesses with 1D domain decompositon
-  game(w, h, timesteps);
+  dim[0] = size;
+
+  //decompose Domain and proesses with 1D domain decompositon
+  MPI_Cart_create(MPI_COMM_WORLD, 1, dim, periodic, reorder, &card_comm);
+
+  //game(w, h, timesteps);
 
   //deinit MPI
   MPI_Finalize();

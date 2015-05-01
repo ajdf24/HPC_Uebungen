@@ -6,7 +6,8 @@
 
 #define calcIndex(width, x,y)  ((y)*(width) + (x))
 
-int rank, size, coord[1];
+int size, coord[1];
+int cart_rank, left_neighbour_rank, right_neighbour_rank;
 MPI_Comm card_comm;
 
 void show(unsigned* currentfield, int w, int h) {
@@ -96,21 +97,24 @@ void filling(unsigned* currentfield, int w, int h) {
 }
 
 void game(int w, int h, int timesteps) {
-  unsigned *currentfield = calloc(w*h, sizeof(unsigned));
-  unsigned *newfield     = calloc(w*h, sizeof(unsigned));
+  int fieldsize = w*((h/size)+2);
+  unsigned *currentfield = calloc(fieldsize, sizeof(unsigned));
+  unsigned *newfield     = calloc(fieldsize, sizeof(unsigned));
 
-  filling(currentfield, w, h);
+  printf("Rank ID: %d, Coord: %d , Fieldsize: %d \n", cart_rank, coord[0], fieldsize);
+
+  filling(currentfield, w, h/size);
   for (int t = 0; t < timesteps; t++) {
 
    //output
    //show(currentfield, w, h);
    writeVTK(currentfield, w, h, t, "output");
-   int changes = evolve(currentfield, newfield, w, h);
+   //int changes = evolve(currentfield, newfield, w, h);
 
    //exit loop if all processes report no more changes
-   int allchanges;
-   MPI_Allreduce(&changes, &allchanges, size, MPI_INT, MPI_SUM, card_comm);
-   if (allchanges == 0) break;
+   //int allchanges;
+   //MPI_Allreduce(&changes, &allchanges, size, MPI_INT, MPI_SUM, card_comm);
+   //if (allchanges == 0) break;
 
    //TODO exchange boundary
 
@@ -134,7 +138,7 @@ int main(int c, char **v) {
   if (c > 3) timesteps = atoi(v[3]);
 
   //init MPI
-  int dim[1], periodic [1];
+  int dim[1], periodic [1], rank;
   periodic[0] = 1;
   int reorder = 1;
 
@@ -148,17 +152,16 @@ int main(int c, char **v) {
   MPI_Cart_create(MPI_COMM_WORLD, 1, dim, periodic, reorder, &card_comm);
 
   //get reorderd cart_rank and neighbours ranks
-  MPI_Cart_coords(card_comm,rank,1,coord);
-  int cart_rank;
-  MPI_Cart_rank(card_comm, coord, &cart_rank);
+  int rank_source;
 
-  int left_neighbour_rank, right_neighbour_rank, rank_source;
+  MPI_Cart_coords(card_comm,rank,1,coord);
+  MPI_Cart_rank(card_comm, coord, &cart_rank);
   MPI_Cart_shift(card_comm, 1, -1, &rank_source, &left_neighbour_rank);
   MPI_Cart_shift(card_comm, 1, 1, &rank_source, &right_neighbour_rank);
 
   printf("Rank ID: %d, Left Neighbour rank: %d , Right Neighbour rank: %d \n", cart_rank, left_neighbour_rank, right_neighbour_rank);
 
-  //game(w, h, timesteps);
+  game(w, h, timesteps);
 
   //deinit MPI
   MPI_Finalize();

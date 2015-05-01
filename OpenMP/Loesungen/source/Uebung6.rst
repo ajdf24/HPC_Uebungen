@@ -79,6 +79,18 @@ Die Ghostboundarys dürfen nicht mit in die Datei geschrieben werden, da diese j
 d)
 ==
 
+::
+
+  int fieldsize = w*((h/size)+2);
+  unsigned *currentfield = calloc(fieldsize, sizeof(unsigned));
+  unsigned *newfield     = calloc(fieldsize, sizeof(unsigned));
+
+  printf("Rank ID: %d, Coord: %d , Fieldsize: %d \n", cart_rank, coord[0], fieldsize);
+
+  filling(currentfield, w, h/size);
+
+Das Feld wird vertikal durch die Anzahl der Prozesse geteilt. Bei 5 Prozessen und 30 Felder berechnet also jeder Prozess 6 Reihen. Zusätzlich bekommt jedes Feld noch 2 Reihen für den Ghostboundary.
+
 e)
 ==
 

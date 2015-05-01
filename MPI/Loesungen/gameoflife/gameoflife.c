@@ -99,12 +99,15 @@ void game(int w, int h, int timesteps) {
   filling(currentfield, w, h);
   for (int t = 0; t < timesteps; t++) {
 
-   //TODO output
-   show(currentfield, w, h);
-   //writeVTK(currentfield, w, h, t, "output");
+   //output
+   //show(currentfield, w, h);
+   writeVTK(currentfield, w, h, t, "output");
    int changes = evolve(currentfield, newfield, w, h);
-   //TODO exit loop if all processes report no more changes
-   if (changes == 0) break;
+
+   //exit loop if all processes report no more changes
+   int allchanges;
+   MPI_Allreduce(&changes, &allchanges, size, MPI_INT, MPI_SUM, card_comm);
+   if (allchanges == 0) break;
 
    //TODO exchange boundary
 

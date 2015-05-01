@@ -45,15 +45,16 @@ void writeVTK(unsigned* currentfield, int w, int h, int t, char* prefix) {
   fprintf(outfile,"frame %d\n", t);
   fprintf(outfile,"BINARY\n");
   fprintf(outfile,"DATASET STRUCTURED_POINTS\n");
-  fprintf(outfile,"DIMENSIONS %d %d %d \n", w, h*size, 1);
+  fprintf(outfile,"DIMENSIONS %d %d %d \n", w, h/size, 1);
   fprintf(outfile,"SPACING 1.0 1.0 1.0\n");//or ASPECT_RATIO
-  fprintf(outfile,"ORIGIN 0 0 0\n");
-  fprintf(outfile,"POINT_DATA %d\n", h*size*w);
+  fprintf(outfile,"ORIGIN 0 %d 0\n", coord[0]*(h/size));
+  fprintf(outfile,"POINT_DATA %d\n", h/size);
   fprintf(outfile,"SCALARS data float 1\n");
   fprintf(outfile,"LOOKUP_TABLE default\n");
 
-  for (int y = 1; y <= h; y++) {
+  for (int y = 1; y <= h/size; y++) {
     for (int x = 0; x < w; x++) {
+
       float value = currentfield[calcIndex(w, x,y)]; // != 0.0 ? 1.0:0.0;
       value = convert2BigEndian(value);
       fwrite(&value, 1, sizeof(float), outfile);
@@ -109,7 +110,7 @@ void game(int w, int h, int timesteps) {
 
    //output
    //show(currentfield, w, h);
-   writeVTK(currentfield, w, gridh, t, "output");
+   writeVTK(currentfield, w, h, t, "output");
    int changes = evolve(currentfield, newfield, w, gridh);
 
    //exit loop if all processes report no more changes

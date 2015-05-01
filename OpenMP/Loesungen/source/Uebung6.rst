@@ -50,30 +50,33 @@ c)
 
 ::
 
-  char name[1024] = "\0";
-  sprintf(name, "%s_%d_%d.vtk", prefix, coord[0], t);
-  FILE* outfile = fopen(name, "w");
+  void writeVTK(unsigned* currentfield, int w, int h, int t, char* prefix) {
+    char name[1024] = "\0";
+    sprintf(name, "%s_%d_%d.vtk", prefix, coord[0], t);
+    FILE* outfile = fopen(name, "w");
 
-  /*Write vtk header */
-  fprintf(outfile,"# vtk DataFile Version 3.0\n");
-  fprintf(outfile,"frame %d\n", t);
-  fprintf(outfile,"BINARY\n");
-  fprintf(outfile,"DATASET STRUCTURED_POINTS\n");
-  fprintf(outfile,"DIMENSIONS %d %d %d \n", w, h, 1);
-  fprintf(outfile,"SPACING 1.0 1.0 1.0\n");//or ASPECT_RATIO
-  fprintf(outfile,"ORIGIN 0 0 0\n");
-  fprintf(outfile,"POINT_DATA %d\n", h*w);
-  fprintf(outfile,"SCALARS data float 1\n");
-  fprintf(outfile,"LOOKUP_TABLE default\n");
+    /*Write vtk header */
+    fprintf(outfile,"# vtk DataFile Version 3.0\n");
+    fprintf(outfile,"frame %d\n", t);
+    fprintf(outfile,"BINARY\n");
+    fprintf(outfile,"DATASET STRUCTURED_POINTS\n");
+    fprintf(outfile,"DIMENSIONS %d %d %d \n", w, h/size, 1);
+    fprintf(outfile,"SPACING 1.0 1.0 1.0\n");//or ASPECT_RATIO
+    fprintf(outfile,"ORIGIN 0 %d 0\n", coord[0]*(h/size));
+    fprintf(outfile,"POINT_DATA %d\n", h/size);
+    fprintf(outfile,"SCALARS data float 1\n");
+    fprintf(outfile,"LOOKUP_TABLE default\n");
 
-  for (int y = 0; y < h; y++) {
-    for (int x = 0; x < w; x++) {
-      float value = currentfield[calcIndex(w, x,y)]; // != 0.0 ? 1.0:0.0;
-      value = convert2BigEndian(value);
-      fwrite(&value, 1, sizeof(float), outfile);
+    for (int y = 1; y <= h/size; y++) {
+      for (int x = 0; x < w; x++) {
+
+        float value = currentfield[calcIndex(w, x,y)]; // != 0.0 ? 1.0:0.0;
+        value = convert2BigEndian(value);
+        fwrite(&value, 1, sizeof(float), outfile);
+      }
     }
+    fclose(outfile);
   }
-  fclose(outfile);
 
 Die Ghostboundarys dürfen nicht mit in die Datei geschrieben werden, da diese ja von dem jeweiligen Prozess nicht berechnet wurden, sondern nur von seinen Nachbarprozessen.
 

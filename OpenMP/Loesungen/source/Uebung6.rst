@@ -20,9 +20,8 @@ b)
   …
 
   //init MPI
-  MPI_Status status;
   int dim[1], periodic [1];
-  periodic[0] = 0;
+  periodic[0] = 1;
   int reorder = 1;
 
   MPI_Init(&c, &v);
@@ -34,7 +33,16 @@ b)
   //decompose Domain and proesses with 1D domain decompositon
   MPI_Cart_create(MPI_COMM_WORLD, 1, dim, periodic, reorder, &card_comm);
 
+  //get reorderd cart_rank and neighbours ranks
   MPI_Cart_coords(card_comm,rank,1,coord);
+  int cart_rank;
+  MPI_Cart_rank(card_comm, coord, &cart_rank);
+
+  int left_neighbour_rank, right_neighbour_rank, rank_source;
+  MPI_Cart_shift(card_comm, 1, -1, &rank_source, &left_neighbour_rank);
+  MPI_Cart_shift(card_comm, 1, 1, &rank_source, &right_neighbour_rank);
+
+  printf("Rank ID: %d, Left Neighbour rank: %d , Right Neighbour rank: %d \n", cart_rank, left_neighbour_rank, right_neighbour_rank);
 
 c)
 ==

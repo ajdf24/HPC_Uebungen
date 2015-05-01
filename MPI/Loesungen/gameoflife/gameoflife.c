@@ -6,6 +6,9 @@
 
 #define calcIndex(width, x,y)  ((y)*(width) + (x))
 
+int rank, size, coord[1];
+MPI_Comm card_comm;
+
 void show(unsigned* currentfield, int w, int h) {
   printf("\033[H");
   for (int y = 0; y < h; y++) {
@@ -33,7 +36,7 @@ float convert2BigEndian( const float inFloat )
 
 void writeVTK(unsigned* currentfield, int w, int h, int t, char* prefix) {
   char name[1024] = "\0";
-  sprintf(name, "%s_%d.vtk", prefix, t);
+  sprintf(name, "%s_%d_%d.vtk", prefix, coord[0], t);
   FILE* outfile = fopen(name, "w");
 
   /*Write vtk header */
@@ -131,11 +134,8 @@ int main(int c, char **v) {
   if (c > 3) timesteps = atoi(v[3]);
 
   //init MPI
-  int rank, size;
-  MPI_Status status;
-  MPI_Comm card_comm;
   int dim[1], periodic [1];
-  periodic[0] = 0;
+  periodic[0] = 1;
   int reorder = 1;
 
   MPI_Init(&c, &v);
@@ -146,6 +146,17 @@ int main(int c, char **v) {
 
   //decompose Domain and proesses with 1D domain decompositon
   MPI_Cart_create(MPI_COMM_WORLD, 1, dim, periodic, reorder, &card_comm);
+
+  //get reorderd cart_rank and neighbours ranks
+  MPI_Cart_coords(card_comm,rank,1,coord);
+  int cart_rank;
+  MPI_Cart_rank(card_comm, coord, &cart_rank);
+
+  int left_neighbour_rank, right_neighbour_rank, rank_source;
+  MPI_Cart_shift(card_comm, 1, -1, &rank_source, &left_neighbour_rank);
+  MPI_Cart_shift(card_comm, 1, 1, &rank_source, &right_neighbour_rank);
+
+  printf("Rank ID: %d, Left Neighbour rank: %d , Right Neighbour rank: %d \n", cart_rank, left_neighbour_rank, right_neighbour_rank);
 
   //game(w, h, timesteps);
 

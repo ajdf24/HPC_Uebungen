@@ -94,14 +94,63 @@ Das Feld wird vertikal durch die Anzahl der Prozesse geteilt. Bei 5 Prozessen un
 e)
 ==
 
+::
+
+  //exchange boundary
+    int data_to_left[w], data_to_right[w], data_from_left[w], data_from_right[w];
+
+    for(int i = 0; i < w; ++i){
+     data_to_left[i] = currentfield[calcIndex(w, i, 1)];
+     data_to_right[i] = currentfield[calcIndex(w, i, gridh-1)];
+    }
+
+    //send to left neighbour
+    MPI_Request to_left;
+    MPI_Isend(&data_to_left,  w, MPI_INT, left_neighbour_rank, 0, card_comm, &to_left);
+
+    //send to right neighbour
+    MPI_Request to_right;
+    MPI_Isend(&data_to_right, w, MPI_INT, right_neighbour_rank, 0, card_comm, &to_right);
+
+    //recive from left neighbour
+    MPI_Request from_left;
+    MPI_Irecv(&data_from_left, w, MPI_INT, left_neighbour_rank, 0, card_comm, &from_left);
+
+    //recive from right neighbour
+    MPI_Request from_right;
+    MPI_Irecv(&data_from_right, w, MPI_INT, right_neighbour_rank, 0, card_comm, &from_right);
+
+    //wait
+    MPI_Status status_left;
+    MPI_Status status_right;
+    MPI_Wait(&from_left, &status_left);
+    MPI_Wait(&from_right, &status_right);
+
+    //update boundaries
+    for(int i = 0; i < w; ++i){
+     currentfield[calcIndex(w, i, 0)] = data_from_left[i];
+     currentfield[calcIndex(w, i, gridh)] = data_from_right[i];
+    }
+
+Bei einer 1D-Gebietszerlegung wird nur in eine Richtung kommuniziert, da sich die andere Richtung komplett im eigenen Gebiet befindet und deshalb nicht, ausgetauscht werden muss. In diesem Fall wurden die Reihen augetauscht, weil dies Speichertechnisch sinnvoller ist.
+
+Bei der Buffervariante ist die Übertragung simpler, weil kein Datentype definitiert werden muss. Dafür kann man sich bei der Datentype-Variante auf den Datentype verlassen.
+
 f)
 ==
 
 ::
 
-  int changes = evolve(currentfield, newfield, w, h);
-
   //exit loop if all processes report no more changes
   int allchanges;
   MPI_Allreduce(&changes, &allchanges, size, MPI_INT, MPI_SUM, card_comm);
   if (allchanges == 0) break;
+
+g)
+==
+
+::
+
+  Bei der 2D Zerlegung muss der Randaustausch in beide Richtungen durchgeführt werden. Was ihn komplizierter macht.
+
+  Außerdem muss die Anzahl der Prozesse sich auf das Gebiet aufteilen lassen. Also ``w%y=0`` und ``h%x=0`` sowie ``y*w=n``, wo bei x= Prozesse in Dimension1, y = Prozesse in Dimension 2 und n=Anzahl der Prozesse.

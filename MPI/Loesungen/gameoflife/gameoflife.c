@@ -120,14 +120,10 @@ void game(int w, int h, int timesteps) {
    //exchange boundary
      int data_to_left[w], data_to_right[w], data_from_left[w], data_from_right[w];
 
-     printf("Rank %d ", cart_rank);
      for(int i = 0; i < w; ++i){
       data_to_left[i] = currentfield[calcIndex(w, i, 1)];
       data_to_right[i] = currentfield[calcIndex(w, i, gridh-1)];
-
-       printf("%d ", data_to_right[i]);
      }
-     printf("\n");
 
      //send to left neighbour
      MPI_Request to_left;
@@ -137,24 +133,25 @@ void game(int w, int h, int timesteps) {
      MPI_Request to_right;
      MPI_Isend(&data_to_right, w, MPI_INT, right_neighbour_rank, 0, card_comm, &to_right);
 
+     //recive from left neighbour
      MPI_Request from_left;
      MPI_Irecv(&data_from_left, w, MPI_INT, left_neighbour_rank, 0, card_comm, &from_left);
 
+     //recive from right neighbour
      MPI_Request from_right;
      MPI_Irecv(&data_from_right, w, MPI_INT, right_neighbour_rank, 0, card_comm, &from_right);
 
+     //wait
      MPI_Status status_left;
      MPI_Status status_right;
      MPI_Wait(&from_left, &status_left);
      MPI_Wait(&from_right, &status_right);
 
-     printf("Rank %d ", cart_rank);
+     //update boundaries
      for(int i = 0; i < w; ++i){
-      printf("%d ", data_from_left[i]);
       currentfield[calcIndex(w, i, 0)] = data_from_left[i];
       currentfield[calcIndex(w, i, gridh)] = data_from_right[i];
      }
-     printf("\n");
 
    // usleep(200000);
 
